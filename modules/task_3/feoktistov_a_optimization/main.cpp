@@ -98,7 +98,7 @@ TEST(Parallel_Operations_MPI, ShortXtest) {
 
   double rez = ParallelOptimization(presision, Xleft, Xright, Yleft, Yright);
   if (rank == 0) {
-    double seq_rez =
+     double seq_rez =
         SeqentalOptimization(presision, Xleft, Xright, Yleft, Yright, size);
     ASSERT_NEAR(rez, seq_rez, 2);
   }

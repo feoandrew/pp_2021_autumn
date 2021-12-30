@@ -1,13 +1,15 @@
 // Copyright 2021 Feoktistov Andrew
 #define _USE_MATH_DEFINES
+#include "../../modules/task_3/feoktistov_a_optimization/ops_mpi.h"
+
 #include <math.h>
 #include <mpi.h>
+
+#include <cfloat>
 #include <iostream>
 #include <set>
-#include<cfloat>
 #include <string>
 #include <vector>
-#include "../../modules/task_3/feoktistov_a_optimization/ops_mpi.h"
 struct interval {
   double begin;
   double end;
@@ -55,9 +57,9 @@ double SeqentalOptimization(double presision, double Xleft, double Xright,
   std::multiset<interval>::iterator iter;
   std::multiset<interval>::iterator iter2;
   double step;
-  
-  double global_min=0;
- 
+
+  double global_min = 0;
+
   points = getPoints(Xleft, Xright, divcount);
   for (int i = 1; i < divcount; i++) {
     interval inter;
@@ -91,7 +93,7 @@ double SeqentalOptimization(double presision, double Xleft, double Xright,
     }
     iter = intervals.begin();
     interval temp1 = *iter;
-    iter++;
+    ++iter;
     interval temp2 = *iter;
     step = (abs(temp1.end - temp2.end));
     if (step <= presision) break;
@@ -112,7 +114,7 @@ double SeqentalOptimization(double presision, double Xleft, double Xright,
         pointvector[i] = temp2;
         iter = intervals.begin();
         for (int j = 0; j < i; j++) {
-          iter++;
+          ++iter;
         }
       } else {
         points[i] = temp1.end + ((temp1.end - temp1.begin) * 9 / 10.0);
@@ -120,7 +122,7 @@ double SeqentalOptimization(double presision, double Xleft, double Xright,
         temp2.end = points[i];
         temp2.begin = temp1.end;
         pointvector[i] = temp2;
-        iter++;
+        ++iter;
       }
     }
   } while (step > presision);
@@ -153,9 +155,6 @@ double ParallelOptimization(double presision, double Xleft, double Xright,
       std::multiset<interval>::iterator iter;
       std::multiset<interval>::iterator iter2;
 
-      
-
-      
       points = getPoints(Xleft, Xright, divcount);
       for (int i = 1; i < divcount; i++) {
         interval inter;
@@ -215,7 +214,7 @@ double ParallelOptimization(double presision, double Xleft, double Xright,
             pointvector[i] = temp2;
             iter = intervals.begin();
             for (int j = 0; j < i; j++) {
-              iter++;
+              ++iter;
             }
           } else {
             points[i] = temp1.end + ((temp1.end - temp1.begin) * 9 / 10.0);
@@ -223,7 +222,7 @@ double ParallelOptimization(double presision, double Xleft, double Xright,
             temp2.end = points[i];
             temp2.begin = temp1.end;
             pointvector[i] = temp2;
-            iter++;
+            ++iter;
           }
         }
       }
