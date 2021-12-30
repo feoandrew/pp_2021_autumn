@@ -54,22 +54,22 @@ double SeqentalOptimization(double presision, double Xleft, double Xright,
   std::multiset<interval>::iterator iter;
   std::multiset<interval>::iterator iter2;
   double step;
-  double global_min = DBL_MAX;
-  bool first = true;
-  double global_min_x = 0;
-
-  double local_min;
+  
+  double global_min=0;
+ 
   points = getPoints(Xleft, Xright, divcount);
   for (int i = 1; i < divcount; i++) {
     interval inter;
     if (i == 1) {
       inter.begin = Xleft;
       inter.end = points[0];
+      inter.value = 0;
       pointvector.push_back(inter);
     }
 
     inter.begin = points[i - 1];
     inter.end = points[i];
+    inter.value = 0;
     pointvector.push_back(inter);
   }
 
@@ -95,7 +95,7 @@ double SeqentalOptimization(double presision, double Xleft, double Xright,
     step = (abs(temp1.end - temp2.end));
     if (step <= presision) break;
     iter = intervals.begin();
-    for (int i = 0; i < points.size(); i++) {
+    for (int i = 0; i < divcount; i++) {
       temp1 = *iter;
 
       if (i % 2 == 0) {
@@ -152,19 +152,21 @@ double ParallelOptimization(double presision, double Xleft, double Xright,
       std::multiset<interval>::iterator iter;
       std::multiset<interval>::iterator iter2;
 
-      bool first = true;
+      
 
-      double local_min;
+      
       points = getPoints(Xleft, Xright, divcount);
       for (int i = 1; i < divcount; i++) {
         interval inter;
         if (i == 1) {
           inter.begin = Xleft;
+          inter.value = 0;
           inter.end = points[0];
           pointvector.push_back(inter);
         }
         inter.begin = points[i - 1];
         inter.end = points[i];
+        inter.value = 0;
         pointvector.push_back(inter);
       }
       while (step > presision) {
