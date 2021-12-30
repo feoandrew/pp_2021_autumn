@@ -46,7 +46,7 @@ TEST(Parallel_Operations_MPI, Acceleration) {
   double Xleft = -5.5;
   double Xright = 3.2;
   double Yleft = -4.9;
-  double Yright = 3.8;
+  double Yright = 3.7;
   double presision = 0.01;
   double beginTime;
   double endtime;
