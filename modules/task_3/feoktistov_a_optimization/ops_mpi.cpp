@@ -1,10 +1,8 @@
 // Copyright 2021 Feoktistov Andrew
 #define _USE_MATH_DEFINES
 #include "../../modules/task_3/feoktistov_a_optimization/ops_mpi.h"
-
 #include <math.h>
 #include <mpi.h>
-
 #include <cfloat>
 #include <iostream>
 #include <set>
@@ -190,7 +188,7 @@ double ParallelOptimization(double presision, double Xleft, double Xright,
 
         iter = intervals.begin();
         interval temp1 = *iter;
-        iter++;
+        ++iter;
         interval temp2 = *iter;
 
         step = (abs(temp1.end - temp2.end));

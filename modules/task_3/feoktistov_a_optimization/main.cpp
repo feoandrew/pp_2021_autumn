@@ -1,10 +1,8 @@
 // Copyright 2021 Feoktistov Andrew
 #include <gtest/gtest.h>
-
-#include <gtest-mpi-listener.hpp>
 #include <vector>
-
 #include "../../modules/task_3/feoktistov_a_optimization/ops_mpi.h"
+#include <gtest-mpi-listener.hpp>
 
 TEST(Parallel_Operations_MPI, Rectangle) {
   int rank;
