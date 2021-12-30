@@ -1,8 +1,10 @@
 // Copyright 2021 Feoktistov Andrew
 #include <gtest/gtest.h>
-#include <vector>
-#include "../../modules/task_3/feoktistov_a_optimization/ops_mpi.h"
+
 #include <gtest-mpi-listener.hpp>
+#include <vector>
+
+#include "../../modules/task_3/feoktistov_a_optimization/ops_mpi.h"
 
 TEST(Parallel_Operations_MPI, Rectangle) {
   int rank;
@@ -55,13 +57,12 @@ TEST(Parallel_Operations_MPI, Acceleration) {
   if (rank == 0) {
     beginTime = MPI_Wtick();
   }
-  double rez = ParallelOptimization(presision, Xleft, Xright, Yleft, Yright);
+  ParallelOptimization(presision, Xleft, Xright, Yleft, Yright);
   if (rank == 0) {
     endtime = MPI_Wtick();
     t1 = beginTime - endtime;
     beginTime = MPI_Wtick();
-    double seq_rez =
-        SeqentalOptimization(presision, Xleft, Xright, Yleft, Yright, size);
+    SeqentalOptimization(presision, Xleft, Xright, Yleft, Yright, size);
     endtime = MPI_Wtick();
     ASSERT_LE(t1, beginTime - endtime);
   }
