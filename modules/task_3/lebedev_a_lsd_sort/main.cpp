@@ -1,6 +1,7 @@
 // Copyright 2021 Lebedev Alexey
 #include <gtest/gtest.h>
 #include <random>
+#include <iostream>
 #include "./lsd_sort.h"
 #include <gtest-mpi-listener.hpp>
 
@@ -29,14 +30,27 @@ TEST(LSD_SORT_MPI, Test_SIGNED_VALUES) {
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
     std::vector<int> v;
+    std::vector<int> tmp;
 
     if (rank == 0) {
-        v = get_random_vector(10000, -10000, 10000);
+        v = get_random_vector(1000000, -10000, 10000);
+        tmp = v;
     }
 
-    lsd_sort(v.begin(), v.end());
+    MPI_Barrier(MPI_COMM_WORLD);
+    double start = MPI_Wtime();
+    lsd_sort_parallel(v.begin(), v.end());
+    double end = MPI_Wtime();
 
     if (rank == 0) {
+        double time_p = end - start;
+        start = MPI_Wtime();
+        lsd_sort(tmp.begin(), tmp.end());
+        end = MPI_Wtime();
+        double time_s = end - start;
+        std::cout << "Sequential time: " << time_s << std::endl;
+        std::cout << "Parallel time: " << time_p << std::endl;
+        std::cout << "SpeedUp: " << time_p / time_s << std::endl;
         ASSERT_TRUE(std::is_sorted(v.begin(), v.end()));
     }
 }
@@ -52,7 +66,7 @@ TEST(LSD_SORT_MPI, Test_NEGATIVE_VALUES_ONLY) {
         v = get_random_vector(10000, -1000000, 0);
     }
 
-    lsd_sort(v.begin(), v.end());
+    lsd_sort_parallel(v.begin(), v.end());
 
     if (rank == 0) {
         ASSERT_TRUE(std::is_sorted(v.begin(), v.end()));
@@ -70,7 +84,7 @@ TEST(LSD_SORT_MPI, Test_POSITIVE_VALUES_ONLY) {
         v = get_random_vector(10000, 0, 1000000);
     }
 
-    lsd_sort(v.begin(), v.end());
+    lsd_sort_parallel(v.begin(), v.end());
 
     if (rank == 0) {
         ASSERT_TRUE(std::is_sorted(v.begin(), v.end()));
@@ -88,7 +102,7 @@ TEST(LSD_SORT_MPI, Test_EMPTY_ARRAY) {
         v = get_random_vector(0, -1000000, 1000000);
     }
 
-    lsd_sort(v.begin(), v.end());
+    lsd_sort_parallel(v.begin(), v.end());
 
     if (rank == 0) {
         ASSERT_TRUE(std::is_sorted(v.begin(), v.end()));
@@ -107,7 +121,7 @@ TEST(LSD_SORT_MPI, Test_SORTED_ARRAY) {
         std::sort(v.begin(), v.end());
     }
 
-    lsd_sort(v.begin(), v.end());
+    lsd_sort_parallel(v.begin(), v.end());
 
     if (rank == 0) {
         ASSERT_TRUE(std::is_sorted(v.begin(), v.end()));
@@ -128,7 +142,7 @@ TEST(LSD_SORT_MPI, Test_RANGE) {
         v.resize(1000);
     }
 
-    lsd_sort(v.begin() + 100, v.end() - 500);
+    lsd_sort_parallel(v.begin() + 100, v.end() - 500);
 
     if (rank == 0) {
         ASSERT_TRUE(std::is_sorted(v.begin() + 100, v.end() - 500));

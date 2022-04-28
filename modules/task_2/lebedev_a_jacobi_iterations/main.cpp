@@ -1,10 +1,33 @@
 // Copyright 2021 Lebedev Alexey
 #include <gtest/gtest.h>
 #include <cstring>
+#include <random>
+#include <cmath>
 #include "./jacobi_iterations.h"
 #include <gtest-mpi-listener.hpp>
 
 #define eps 0.0001
+
+
+LinearSystem get_random_system(int size) {
+    LinearSystem sys(size);
+    std::random_device random;
+    std::mt19937 generate(random());
+    std::uniform_int_distribution<> range(-20, 20);
+    for (int i = 0; i < size; i++) {
+        float sum = 0;
+        for (int j = 0; j < size; j++) {
+            if (i != j) {
+                sys.A.get_data()[i * size + j] = range(generate);
+                sum += abs(sys.A[i * size + j]);
+            }
+        }
+        sys.A.get_data()[i * size + i] = sum + 15;
+        sys.b.get_data()[i] = range(generate);
+        sys.x0.get_data()[i] = 0;
+    }
+    return sys;
+}
 
 
 TEST(Jacobi_iterations_MPI, Test_Tensor) {
@@ -167,6 +190,40 @@ TEST(Jacobi_iterations_MPI, Test_Jacobi_Iterations_Parallel_4D) {
             EXPECT_NEAR(x[i], expected[i], eps);
         }
     } else if (rank >= 4) {
+        ASSERT_FALSE(x.is_allocated());
+    }
+}
+
+
+TEST(Jacobi_iterations_MPI, Test_Jacobi_Iterations_Parallel_8D) {
+    int rank;
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
+    int n_dims = 0;
+
+    if (rank == 0) {
+        n_dims = 16;
+    }
+
+    LinearSystem sys = get_random_system(n_dims);
+
+    double start = MPI_Wtime();
+    Tensor<float> x = solve_parallel(sys, eps);
+    double end = MPI_Wtime();
+
+    if (rank == 0) {
+        double time_p = end - start;
+        start = MPI_Wtime();
+        Tensor<float> expected = sys.solve(eps);
+        end = MPI_Wtime();
+        double time_s = end - start;
+        std::cout << "Sequential time: " << time_s << std::endl;
+        std::cout << "Parallel time: " << time_p << std::endl;
+        std::cout << "SpeedUp: " << time_p / time_s << std::endl;
+        for (int i = 0; i < x.get_size(); i++) {
+            EXPECT_NEAR(x[i], expected[i], eps);
+        }
+    } else if (rank >= 16) {
         ASSERT_FALSE(x.is_allocated());
     }
 }

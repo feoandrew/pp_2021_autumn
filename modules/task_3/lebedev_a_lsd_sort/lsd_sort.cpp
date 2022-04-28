@@ -93,7 +93,11 @@ void lsd_sort_parallel(std::vector<int>::iterator first, std::vector<int>::itera
 
     if (rank == 0) {
         std::vector<int> tmp(last - first);
-        std::memcpy(tmp.data(), local_v.data(), local_v.size() * sizeof(int));
+        if (size > 1) {
+            std::memcpy(tmp.data(), local_v.data(), local_v.size() * sizeof(int));
+        } else {
+            std::memcpy(&(*first), local_v.data(), local_v.size() * sizeof(int));
+        }
         int offset = local_v.size();
         for (int i = 1; i < size; i++) {
             int count;
